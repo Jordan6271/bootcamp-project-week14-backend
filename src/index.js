@@ -6,7 +6,7 @@ const morgan = require(`morgan`);
 const mongoose = require(`mongoose`);
 const { ObjectId } = require(`mongodb`);
 
-// const { Event } = require(`../models/Event"`);
+const { Event } = require(`../models/Event`);
 // const { User } = require(`../models/User`);
 
 // mongoose.connect(`mongodb://localhost/eventful`);
