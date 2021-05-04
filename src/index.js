@@ -7,9 +7,9 @@ const mongoose = require(`mongoose`);
 const { ObjectId } = require(`mongodb`);
 
 const { Event } = require(`../models/Event`);
-// const { User } = require(`../models/User`);
+const { User } = require(`../models/User`);
 
-// mongoose.connect(`mongodb://localhost/eventful`);
+mongoose.connect(`mongodb://localhost/eventful`);
 
 const eventful = express();
 
