@@ -9,6 +9,8 @@ const { ObjectId } = require(`mongodb`);
 const { Event } = require(`../models/Event`);
 const { User } = require(`../models/User`);
 
+const dburi = `mongodb+srv://testUser:testPassword@cluster0.w75uz.mongodb.net/test`;
+
 mongoose.connect(`mongodb://localhost/eventful`);
 
 const eventful = express();
@@ -24,6 +26,26 @@ eventful.use(cors());
 
 // Morgan logs http requests
 eventful.use(morgan(`combined`));
+
+eventful.post(`/auth`, async (request, response) => {
+    const user = await User.findOne({ username: request.body.username });
+    if (!user) {
+        return response.sendStatus(401);
+    }
+    if (request.body.password !== user.password) {
+        return response.sendStatus(403);
+    }
+    response.send({ token: `secretstring` });
+});
+
+eventful.use((request, response, next) => {
+    const authHeader = request.headers[`authorization`];
+    if (authHeader === `secretstring`) {
+        next();
+    } else {
+        response.sendStatus(403);
+    }
+});
 
 // CRUD operations
 eventful.get(`/`, async (request, response) => {
