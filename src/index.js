@@ -8,10 +8,13 @@ const { ObjectId } = require(`mongodb`);
 
 const { Event } = require(`../models/Event`);
 const { User } = require(`../models/User`);
+const { v4: uuidv4 } = require(`uuid`);
 
-const dburi = `mongodb+srv://testUser:testPassword@cluster0.w75uz.mongodb.net/test`;
+const dburi =
+    process.env.MONGO_URI ||
+    `mongodb+srv://testUser:testPassword@cluster0.w75uz.mongodb.net/test`;
 
-mongoose.connect(`mongodb://localhost/eventful`);
+mongoose.connect(dburi);
 
 const eventful = express();
 
@@ -35,12 +38,15 @@ eventful.post(`/auth`, async (request, response) => {
     if (request.body.password !== user.password) {
         return response.sendStatus(403);
     }
-    response.send({ token: `secretstring` });
+    user.token = uuidv4();
+    await user.save();
+    response.send({ token: user.token });
 });
 
-eventful.use((request, response, next) => {
+eventful.use(async (request, response, next) => {
     const authHeader = request.headers[`authorization`];
-    if (authHeader === `secretstring`) {
+    const user = await User.findOne({ token: authHeader });
+    if (user) {
         next();
     } else {
         response.sendStatus(403);
@@ -48,7 +54,7 @@ eventful.use((request, response, next) => {
 });
 
 // CRUD operations
-eventful.get(`/`, async (request, response) => {
+eventful.get(`/`, async (_, response) => {
     response.send(await Event.find());
 });
 
