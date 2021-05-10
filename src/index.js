@@ -11,12 +11,13 @@ const { User } = require(`../models/User`);
 const { v4: uuidv4 } = require(`uuid`);
 
 const dburi =
-    process.env.PORT ||
+    process.env.MONGO_URI ||
     `mongodb+srv://Jordan:fbNyeIkb2sokJLzJ@cluster0.w75uz.mongodb.net/auth?retryWrites=true&w=majority`;
 
 mongoose.connect(dburi);
 
 const eventful = express();
+const port = process.env.PORT || 3001;
 
 // Helmet enhances API security
 eventful.use(helmet());
@@ -54,7 +55,7 @@ eventful.use(async (request, response, next) => {
 });
 
 // CRUD operations
-eventful.get(`/`, async (request, response) => {
+eventful.get(`/`, async (_, response) => {
     response.send(await Event.find());
 });
 
@@ -76,6 +77,10 @@ eventful.put(`/:id`, async (request, response) => {
         request.body
     );
     response.send({ message: `Event updated.` });
+});
+
+eventful.listen(port, () => {
+    console.log(`Listening on port ${port}`);
 });
 
 var database = mongoose.connection;
