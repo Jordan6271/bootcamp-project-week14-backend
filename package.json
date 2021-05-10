@@ -24,6 +24,9 @@
         "eject": "react-scripts eject",
         "heroku-postbuild": "npm run build"
     },
+    "engines": {
+        "node": "14.15.4"
+    },
     "repository": {
         "type": "git",
         "url": "git+https://github.com/Jordan6271/bootcamp-project-week14-backend.git"
