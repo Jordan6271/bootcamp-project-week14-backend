@@ -66,6 +66,10 @@ eventful.post(`/`, async (request, response) => {
     response.send({ message: `New event created.` });
 });
 
+eventful.get(`/:id`, async (request, response) => {
+    response.send(await Event.findById({ _id: ObjectId(request.params.id) }));
+});
+
 eventful.delete(`/:id`, async (request, response) => {
     await Event.deleteOne({ _id: ObjectId(request.params.id) });
     response.send({ message: `Event removed.` });
