@@ -12,7 +12,7 @@ const { v4: uuidv4 } = require(`uuid`);
 
 const dburi =
     process.env.MONGO_URI ||
-    `mongodb+srv://testUser:testPassword@cluster0.w75uz.mongodb.net/test`;
+    `mongodb+srv://Jordan:fbNyeIkb2sokJLzJ@cluster0.w75uz.mongodb.net/auth?retryWrites=true&w=majority`;
 
 mongoose.connect(dburi);
 
@@ -21,7 +21,7 @@ const eventful = express();
 // Helmet enhances API security
 eventful.use(helmet());
 
-// Body Parser parses JSON bodies into JS objects
+// bodyParser parses JSON bodies into JS objects - needed for logging in on frontend
 eventful.use(bodyParser.json());
 
 // Enables CORS for requests
@@ -54,7 +54,7 @@ eventful.use(async (request, response, next) => {
 });
 
 // CRUD operations
-eventful.get(`/`, async (_, response) => {
+eventful.get(`/`, async (request, response) => {
     response.send(await Event.find());
 });
 
