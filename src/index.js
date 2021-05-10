@@ -11,7 +11,7 @@ const { User } = require(`../models/User`);
 const { v4: uuidv4 } = require(`uuid`);
 
 const dburi =
-    process.env.MONGO_URI ||
+    process.env.PORT ||
     `mongodb+srv://Jordan:fbNyeIkb2sokJLzJ@cluster0.w75uz.mongodb.net/auth?retryWrites=true&w=majority`;
 
 mongoose.connect(dburi);
@@ -76,10 +76,6 @@ eventful.put(`/:id`, async (request, response) => {
         request.body
     );
     response.send({ message: `Event updated.` });
-});
-
-eventful.listen(3001, () => {
-    console.log(`Listening on port 3001`);
 });
 
 var database = mongoose.connection;
