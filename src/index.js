@@ -79,9 +79,7 @@ eventful.put(`/:id`, async (request, response) => {
     response.send({ message: `Event updated.` });
 });
 
-eventful.listen(port, () => {
-    console.log(`Listening on port ${port}`);
-});
+eventful.listen(port);
 
 var database = mongoose.connection;
 database.on(`error`, console.error.bind(console, `connection error: `));
