@@ -10,7 +10,9 @@ const { Event } = require(`../models/Event`);
 const { User } = require(`../models/User`);
 const { v4: uuidv4 } = require(`uuid`);
 
-const dburi = `mongodb+srv://Jordan:fbNyeIkb2sokJLzJ@cluster0.w75uz.mongodb.net/auth?retryWrites=true&w=majority`;
+const dburi =
+    process.env.PORT ||
+    `mongodb+srv://Jordan:fbNyeIkb2sokJLzJ@cluster0.w75uz.mongodb.net/auth?retryWrites=true&w=majority`;
 
 mongoose.connect(dburi);
 
