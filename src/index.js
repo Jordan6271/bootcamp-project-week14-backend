@@ -42,7 +42,7 @@ eventful.post(
     async (request, response) => {
         const errors = validationResult(request);
         if (!errors.isEmpty()) {
-            return response.status(400).json({ errors: error.array() });
+            return response.status(400).json({ errors: errors.array() });
         }
         const user = await User.findOne({
             username: request.body.username,
