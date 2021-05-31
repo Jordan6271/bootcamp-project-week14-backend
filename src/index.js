@@ -119,7 +119,13 @@ eventful.post(
 );
 
 eventful.get(`/:id`, async (request, response) => {
-    await Event.findOne({ _id: ObjectId(request.params.id) });
+    try {
+        response.send(
+            await Event.findOne({ _id: ObjectId(request.params.id) })
+        );
+    } catch (error) {
+        response.status(500).send(`Server error: ${error}`);
+    }
 });
 
 eventful.delete(`/:id`, async (request, response) => {
