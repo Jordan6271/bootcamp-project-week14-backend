@@ -35,35 +35,31 @@ eventful.use(morgan(`combined`));
 eventful.post(
     `/auth`,
     [
-        check(`username`, `Username is required`).exists(),
+        check(`username`, `Username is required`).not().isEmpty(),
 
-        check(`password`, `Password is required`).exists(),
+        check(`password`, `Password is required`).not().isEmpty(),
     ],
     async (request, response) => {
         const errors = validationResult(request);
         if (!errors.isEmpty()) {
             return response.status(400).json({ errors: error.array() });
         }
-        try {
-            const user = await User.findOne({
-                username: request.body.username,
-            });
-            if (!user) {
-                return response
-                    .status(400)
-                    .json({ errors: [{ message: `Invalid username` }] });
-            }
-            if (request.body.password !== user.password) {
-                return response
-                    .status(400)
-                    .json({ errors: [{ message: `Invalid password` }] });
-            }
-            user.token = uuidv4();
-            await user.save();
-            response.send({ token: user.token });
-        } catch (error) {
-            response.status(500).send(`Server error: ${error}`);
+        const user = await User.findOne({
+            username: request.body.username,
+        });
+        if (!user) {
+            return response
+                .status(400)
+                .json({ errors: [{ msg: `Invalid username` }] });
         }
+        if (request.body.password !== user.password) {
+            return response
+                .status(400)
+                .json({ errors: [{ msg: `Invalid password` }] });
+        }
+        user.token = uuidv4();
+        await user.save();
+        response.send({ token: user.token });
     }
 );
 
