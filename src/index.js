@@ -44,32 +44,40 @@ eventful.post(
         if (!errors.isEmpty()) {
             return response.status(400).json({ errors: errors.array() });
         }
-        const user = await User.findOne({
-            username: request.body.username,
-        });
-        if (!user) {
-            return response
-                .status(400)
-                .json({ errors: [{ msg: `Invalid username` }] });
+        try {
+            const user = await User.findOne({
+                username: request.body.username,
+            });
+            if (!user) {
+                return response
+                    .status(400)
+                    .json({ errors: [{ msg: `Invalid username` }] });
+            }
+            if (request.body.password !== user.password) {
+                return response
+                    .status(400)
+                    .json({ errors: [{ msg: `Invalid password` }] });
+            }
+            user.token = uuidv4();
+            await user.save();
+            response.send({ token: user.token });
+        } catch (error) {
+            response.status(500).send(`Server error: ${error}`);
         }
-        if (request.body.password !== user.password) {
-            return response
-                .status(400)
-                .json({ errors: [{ msg: `Invalid password` }] });
-        }
-        user.token = uuidv4();
-        await user.save();
-        response.send({ token: user.token });
     }
 );
 
 eventful.use(async (request, response, next) => {
-    const authHeader = request.headers[`authorization`];
-    const user = await User.findOne({ token: authHeader });
-    if (user) {
-        next();
-    } else {
-        response.status(400).send(`Forbidden access`);
+    try {
+        const authHeader = request.headers[`authorization`];
+        const user = await User.findOne({ token: authHeader });
+        if (user) {
+            next();
+        } else {
+            response.status(400).send(`Forbidden access`);
+        }
+    } catch (error) {
+        response.status(500).send(`Server error: ${error}`);
     }
 });
 
