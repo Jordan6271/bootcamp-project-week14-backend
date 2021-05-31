@@ -60,14 +60,13 @@ eventful.get(`/`, async (_, response) => {
 });
 
 eventful.post(`/`, async (request, response) => {
-    const newEvent = request.body;
-    const event = new Event(newEvent);
+    const event = new Event(request.body);
     await event.save();
     response.send({ message: `New event created.` });
 });
 
 eventful.get(`/:id`, async (request, response) => {
-    response.send(await Event.findById({ _id: ObjectId(request.params.id) }));
+    await Event.findOne({ _id: ObjectId(request.params.id) });
 });
 
 eventful.delete(`/:id`, async (request, response) => {
@@ -87,6 +86,4 @@ eventful.listen(port);
 
 var database = mongoose.connection;
 database.on(`error`, console.error.bind(console, `connection error: `));
-database.once(`open`, function callback() {
-    console.log(`Database connected!`);
-});
+database.once(`open`, function callback() {});
