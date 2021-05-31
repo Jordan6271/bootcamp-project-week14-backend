@@ -35,9 +35,9 @@ eventful.use(morgan(`combined`));
 eventful.post(
     `/auth`,
     [
-        check(`username`, `Username is required`).not().isEmpty(),
+        check(`username`, `Username is required`).exists(),
 
-        check(`password`, `Password is required`).not().isEmpty(),
+        check(`password`, `Password is required`).exists(),
     ],
     async (request, response) => {
         const errors = validationResult(request);
