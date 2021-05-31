@@ -9,7 +9,7 @@ const { ObjectId } = require(`mongodb`);
 const { Event } = require(`../models/Event`);
 const { User } = require(`../models/User`);
 const { v4: uuidv4 } = require(`uuid`);
-const { check, validationResult } = require("express-validator");
+const { check, validationResult } = require(`express-validator`);
 
 const dburi =
     process.env.MONGO_URI ||
@@ -69,7 +69,7 @@ eventful.post(
 
 eventful.use(async (request, response, next) => {
     try {
-        const authHeader = request.headers[`authorization`];
+        const authHeader = request.headers.authorization;
         const user = await User.findOne({ token: authHeader });
         if (user) {
             next();
@@ -198,7 +198,3 @@ eventful.put(
 );
 
 eventful.listen(port);
-
-var database = mongoose.connection;
-database.on(`error`, console.error.bind(console, `connection error: `));
-database.once(`open`, function callback() {});
