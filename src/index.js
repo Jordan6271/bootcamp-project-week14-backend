@@ -35,9 +35,9 @@ eventful.use(morgan(`combined`));
 eventful.post(
     `/auth`,
     [
-        check(`username`, `Username is required`).not().isEmpty(),
+        check(`username`, `Username is required`).exists(),
 
-        check(`password`, `Password is required`).not().isEmpty(),
+        check(`password`, `Password is required`).exists(),
     ],
     async (request, response) => {
         const errors = validationResult(request);
@@ -74,7 +74,9 @@ eventful.use(async (request, response, next) => {
         if (user) {
             next();
         } else {
-            response.status(400).send(`Forbidden access`);
+            response
+                .status(400)
+                .send(`Forbidden access - invalid authorization`);
         }
     } catch (error) {
         response.status(500).send(`Server error: ${error}`);
@@ -93,15 +95,14 @@ eventful.get(`/`, async (_, response) => {
 eventful.post(
     `/`,
     [
-        check(`name`, `The name of the event is required`).not().isEmpty(),
-        check(`location`, `The location of the event is required`)
-            .not()
-            .isEmpty(),
-        check(`description`, `The description of the event is required`)
-            .not()
-            .isEmpty(),
-        check(`date`, `The date of the event is required`).not().isEmpty(),
-        check(`time`, `The time of the event is required`).not().isEmpty(),
+        check(`name`, `The name of the event is required`).exists(),
+        check(`location`, `The location of the event is required`).exists(),
+        check(
+            `description`,
+            `The description of the event is required`
+        ).exists(),
+        check(`date`, `The date of the event is required`).exists(),
+        check(`time`, `The time of the event is required`).exists(),
     ],
     async (request, response) => {
         const errors = validationResult(request);
@@ -120,9 +121,17 @@ eventful.post(
 
 eventful.get(`/:id`, async (request, response) => {
     try {
-        response.send(
-            await Event.findOne({ _id: ObjectId(request.params.id) })
-        );
+        const foundEvent = await Event.findOne({
+            _id: ObjectId(request.params.id),
+        });
+        if (!foundEvent) {
+            return response
+                .status(404)
+                .send(
+                    `This event does not exist. The ID value given is incorrect: ${request.params.id}.`
+                );
+        }
+        response.send(foundEvent);
     } catch (error) {
         response.status(500).send(`Server error: ${error}`);
     }
@@ -130,7 +139,19 @@ eventful.get(`/:id`, async (request, response) => {
 
 eventful.delete(`/:id`, async (request, response) => {
     try {
-        await Event.deleteOne({ _id: ObjectId(request.params.id) });
+        const foundEvent = await Event.findOne({
+            _id: ObjectId(request.params.id),
+        });
+        if (!foundEvent) {
+            return response
+                .status(404)
+                .send(
+                    `This event does not exist. The ID value given is incorrect: ${request.params.id}.`
+                );
+        }
+        await Event.deleteOne({
+            _id: ObjectId(request.params.id),
+        });
         response.send({ message: `Event removed.` });
     } catch (error) {
         response.status(500).send(`Server error: ${error}`);
@@ -140,22 +161,31 @@ eventful.delete(`/:id`, async (request, response) => {
 eventful.put(
     `/:id`,
     [
-        check(`name`, `The name of the event is required`).not().isEmpty(),
-        check(`location`, `The location of the event is required`)
-            .not()
-            .isEmpty(),
-        check(`description`, `The description of the event is required`)
-            .not()
-            .isEmpty(),
-        check(`date`, `The date of the event is required`).not().isEmpty(),
-        check(`time`, `The time of the event is required`).not().isEmpty(),
+        check(`name`, `The name of the event is required`).exists(),
+        check(`location`, `The location of the event is required`).exists(),
+        check(
+            `description`,
+            `The description of the event is required`
+        ).exists(),
+        check(`date`, `The date of the event is required`).exists(),
+        check(`time`, `The time of the event is required`).exists(),
     ],
     async (request, response) => {
-        const errors = validationResult(request);
-        if (!errors.isEmpty()) {
-            return response.status(400).json({ errors: errors.array() });
-        }
         try {
+            const foundEvent = await Event.findOne({
+                _id: ObjectId(request.params.id),
+            });
+            if (!foundEvent) {
+                return response
+                    .status(404)
+                    .send(
+                        `This event does not exist. The ID value given is incorrect: ${request.params.id}.`
+                    );
+            }
+            const errors = validationResult(request);
+            if (!errors.isEmpty()) {
+                return response.status(400).json({ errors: errors.array() });
+            }
             await Event.findOneAndUpdate(
                 { _id: ObjectId(request.params.id) },
                 request.body
