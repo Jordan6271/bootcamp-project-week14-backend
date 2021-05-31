@@ -64,20 +64,12 @@ eventful.post(
 );
 
 eventful.use(async (request, response, next) => {
-    const errors = validationResult(request);
-    if (!errors.isEmpty()) {
-        return response.status(400).json({ errors: error.array() });
-    }
-    try {
-        const authHeader = request.headers[`authorization`];
-        const user = await User.findOne({ token: authHeader });
-        if (user) {
-            next();
-        } else {
-            response.status(400).send(`Forbidden access`);
-        }
-    } catch (error) {
-        response.status(500).send(`Server error: ${error}`);
+    const authHeader = request.headers[`authorization`];
+    const user = await User.findOne({ token: authHeader });
+    if (user) {
+        next();
+    } else {
+        response.status(400).send(`Forbidden access`);
     }
 });
 
